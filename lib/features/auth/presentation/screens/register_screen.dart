@@ -1,0 +1,735 @@
+// import 'package:flutter/material.dart';
+// import 'package:go_router/go_router.dart';
+// import 'package:provider/provider.dart';
+
+// import '../../../../core/constants/app_colors.dart';
+// import '../../../../core/routes/route_names.dart';
+// import '../../../../core/utils/validators.dart';
+// import '../providers/auth_provider.dart';
+
+// class RegisterScreen extends StatefulWidget {
+//   const RegisterScreen({super.key});
+
+//   @override
+//   State<RegisterScreen> createState() => _RegisterScreenState();
+// }
+
+// class _RegisterScreenState extends State<RegisterScreen> {
+//   final _formKey = GlobalKey<FormState>();
+//   final _nameCtrl = TextEditingController();
+//   final _emailCtrl = TextEditingController();
+//   final _passwordCtrl = TextEditingController();
+//   final _confirmCtrl = TextEditingController();
+
+//   @override
+//   void dispose() {
+//     _nameCtrl.dispose();
+//     _emailCtrl.dispose();
+//     _passwordCtrl.dispose();
+//     _confirmCtrl.dispose();
+//     super.dispose();
+//   }
+
+//   Future<void> _submit() async {
+//     if (!_formKey.currentState!.validate()) return;
+
+//     // Extra client-side safety before hitting the server
+//     if (_passwordCtrl.text.length < 6) {
+//       _showError('Password must be at least 6 characters');
+//       return;
+//     }
+
+//     final provider = context.read<AuthProvider>();
+//     final ok = await provider.register(
+//       _emailCtrl.text.trim().toLowerCase(),
+//       _passwordCtrl.text,
+//       _nameCtrl.text.trim(),
+//     );
+
+//     if (!mounted) return;
+
+//     if (ok) {
+//       context.go(RouteNames.home);
+//       return;
+//     }
+
+//     _showError(provider.error ?? 'Registration failed');
+
+//     // final message = provider.error ?? 'Registration failed';
+//   }
+
+//   void _showError(String message) {
+//     ScaffoldMessenger.of(context)
+//       ..hideCurrentSnackBar()
+//       ..showSnackBar(
+//         SnackBar(
+//           content: Text(message),
+//           backgroundColor: AppColors.danger,
+//           behavior: SnackBarBehavior.floating,
+//         ),
+//       );
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final isLoading = context.watch<AuthProvider>().isLoading;
+
+//     return Scaffold(
+//       appBar: AppBar(title: const Text('Create Account')),
+//       body: SafeArea(
+//         child: SingleChildScrollView(
+//           padding: const EdgeInsets.all(24),
+//           child: Form(
+//             key: _formKey,
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.stretch,
+//               children: [
+//                 TextFormField(
+//                   controller: _nameCtrl,
+//                   enabled: !isLoading,
+//                   textInputAction: TextInputAction.next,
+//                   textCapitalization: TextCapitalization.words,
+//                   decoration: const InputDecoration(
+//                     labelText: 'Full Name',
+//                     prefixIcon: Icon(Icons.person_outline),
+//                   ),
+//                   validator: (v) => Validators.required(v, field: 'Name'),
+//                 ),
+//                 const SizedBox(height: 16),
+//                 TextFormField(
+//                   controller: _emailCtrl,
+//                   enabled: !isLoading,
+//                   keyboardType: TextInputType.emailAddress,
+//                   textInputAction: TextInputAction.next,
+//                   decoration: const InputDecoration(
+//                     labelText: 'Email',
+//                     prefixIcon: Icon(Icons.email_outlined),
+//                   ),
+//                   validator: Validators.email,
+//                 ),
+//                 const SizedBox(height: 16),
+//                 TextFormField(
+//                   controller: _passwordCtrl,
+//                   enabled: !isLoading,
+//                   obscureText: true,
+//                   textInputAction: TextInputAction.next,
+//                   decoration: const InputDecoration(
+//                     labelText: 'Password',
+//                     prefixIcon: Icon(Icons.lock_outline),
+//                   ),
+//                   validator: Validators.password,
+//                 ),
+//                 const SizedBox(height: 16),
+//                 TextFormField(
+//                   controller: _confirmCtrl,
+//                   enabled: !isLoading,
+//                   obscureText: true,
+//                   textInputAction: TextInputAction.done,
+//                   onFieldSubmitted: (_) {
+//                     if (!isLoading) _submit();
+//                   },
+//                   decoration: const InputDecoration(
+//                     labelText: 'Confirm Password',
+//                     prefixIcon: Icon(Icons.lock_outline),
+//                   ),
+//                   validator: (v) {
+//                     if (v == null || v.isEmpty) {
+//                       return 'Please confirm your password';
+//                     }
+//                     if (v != _passwordCtrl.text){
+//                       return 'Passwords do not match';
+//                     }
+
+//                     return null;
+//                   },
+//                 ),
+//                 const SizedBox(height: 24),
+
+//                 ElevatedButton(
+//                   onPressed: isLoading ? null : _submit,
+//                   child: isLoading
+//                       ? const SizedBox(
+//                           width: 22,
+//                           height: 22,
+//                           child: CircularProgressIndicator(
+//                             color: Colors.white,
+//                             strokeWidth: 2.5,
+//                           ),
+//                         )
+//                       : const Text('Register'),
+//                 ),
+
+//                 const SizedBox(height: 12),
+//                 TextButton(
+//                   onPressed: isLoading ? null : () => context.go(RouteNames.login),
+//                   child: const Text('Already have an account? Login'),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/routes/route_names.dart';
+import '../../../../core/utils/validators.dart';
+import '../providers/auth_provider.dart';
+
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
+  final _confirmCtrl = TextEditingController();
+
+  final _emailFocus = FocusNode();
+  final _passwordFocus = FocusNode();
+  final _confirmFocus = FocusNode();
+
+  bool _obscurePassword = true;
+  bool _obscureConfirm = true;
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _emailCtrl.dispose();
+    _passwordCtrl.dispose();
+    _confirmCtrl.dispose();
+    _emailFocus.dispose();
+    _passwordFocus.dispose();
+    _confirmFocus.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (_passwordCtrl.text.length < 6) {
+      _showError('Password must be at least 6 characters');
+      return;
+    }
+
+    FocusScope.of(context).unfocus();
+
+    final provider = context.read<AuthProvider>();
+    final ok = await provider.register(
+      _emailCtrl.text.trim().toLowerCase(),
+      _passwordCtrl.text,
+      _nameCtrl.text.trim(),
+    );
+
+    if (!mounted) return;
+
+    if (ok) {
+      context.go(RouteNames.home);
+      return;
+    }
+
+    _showError(provider.error ?? 'Registration failed');
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(child: Text(message)),
+            ],
+          ),
+          backgroundColor: AppColors.danger,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 4),
+          action: SnackBarAction(
+            label: 'OK',
+            textColor: Colors.white,
+            onPressed: () =>
+                ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+          ),
+        ),
+      );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final isLoading = auth.isLoading;
+
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
+    final bgTop = isDark
+        ? Color.lerp(scheme.surface, scheme.primary, 0.10)!
+        : Color.lerp(scheme.surface, scheme.primary, 0.06)!;
+    final bgBottom = scheme.surface;
+
+    final cardColor = isDark
+        ? Color.lerp(scheme.surface, Colors.white, 0.04)!
+        : Colors.white;
+
+    final fieldFill = isDark
+        ? Color.lerp(cardColor, Colors.white, 0.06)!
+        : Color.lerp(cardColor, scheme.primary, 0.04)!;
+
+    final fieldBorder = isDark
+        ? Colors.white.withValues(alpha: 0.18)
+        : scheme.primary.withValues(alpha: 0.22);
+    final fieldBorderFocus = scheme.primary;
+
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Back to login',
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(RouteNames.login);
+            }
+          },
+        ),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [bgTop, bgBottom],
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 460),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // ── Compact brand mark ──────────────────────
+                    Container(
+                      width: 88,
+                      height: 88,
+                      decoration: BoxDecoration(
+                        color: scheme.primary.withOpacity(isDark ? 0.20 : 0.12),
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Icon(
+                        Icons.person_add_alt_1,
+                        size: 44,
+                        color: scheme.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Text(
+                      'Create Account',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: scheme.onSurface,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Set up your store in a minute',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurface.withValues(alpha: 0.60),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // ── Form card ──────────────────────────────
+                    Container(
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+                      decoration: BoxDecoration(
+                        color: cardColor,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.06)
+                              : Colors.black.withValues(alpha: 0.05),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(
+                              isDark ? 0.30 : 0.06,
+                            ),
+                            blurRadius: 24,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // ── Full Name ─────────────────────
+                            TextFormField(
+                              controller: _nameCtrl,
+                              enabled: !isLoading,
+                              textInputAction: TextInputAction.next,
+                              textCapitalization: TextCapitalization.words,
+                              autofillHints: const [AutofillHints.name],
+                              onFieldSubmitted: (_) =>
+                                  _emailFocus.requestFocus(),
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: scheme.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              decoration: _fieldDecoration(
+                                label: 'Full Name',
+                                hint: 'John Doe',
+                                prefixIcon: Icons.person_outline,
+                                fill: fieldFill,
+                                border: fieldBorder,
+                                focusBorder: fieldBorderFocus,
+                                scheme: scheme,
+                                isDark: isDark,
+                                cardColor: cardColor,
+                              ),
+                              validator: (v) =>
+                                  Validators.required(v, field: 'Name'),
+                            ),
+                            const SizedBox(height: 14),
+
+                            // ── Email ─────────────────────────
+                            TextFormField(
+                              controller: _emailCtrl,
+                              focusNode: _emailFocus,
+                              enabled: !isLoading,
+                              keyboardType: TextInputType.emailAddress,
+                              textInputAction: TextInputAction.next,
+                              autofillHints: const [AutofillHints.email],
+                              onFieldSubmitted: (_) =>
+                                  _passwordFocus.requestFocus(),
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: scheme.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              decoration: _fieldDecoration(
+                                label: 'Email',
+                                hint: 'you@example.com',
+                                prefixIcon: Icons.email_outlined,
+                                fill: fieldFill,
+                                border: fieldBorder,
+                                focusBorder: fieldBorderFocus,
+                                scheme: scheme,
+                                isDark: isDark,
+                                cardColor: cardColor,
+                              ),
+                              validator: Validators.email,
+                            ),
+                            const SizedBox(height: 14),
+
+                            // ── Password ──────────────────────
+                            TextFormField(
+                              controller: _passwordCtrl,
+                              focusNode: _passwordFocus,
+                              enabled: !isLoading,
+                              obscureText: _obscurePassword,
+                              textInputAction: TextInputAction.next,
+                              autofillHints: const [AutofillHints.newPassword],
+                              onFieldSubmitted: (_) =>
+                                  _confirmFocus.requestFocus(),
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: scheme.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              decoration:
+                                  _fieldDecoration(
+                                    label: 'Password',
+                                    hint: '••••••••',
+                                    prefixIcon: Icons.lock_outline,
+                                    fill: fieldFill,
+                                    border: fieldBorder,
+                                    focusBorder: fieldBorderFocus,
+                                    scheme: scheme,
+                                    isDark: isDark,
+                                    cardColor: cardColor,
+                                  ).copyWith(
+                                    suffixIcon: IconButton(
+                                      tooltip: _obscurePassword
+                                          ? 'Show password'
+                                          : 'Hide password',
+                                      icon: Icon(
+                                        _obscurePassword
+                                            ? Icons.visibility_outlined
+                                            : Icons.visibility_off_outlined,
+                                        color: scheme.onSurface.withValues(
+                                          alpha: 0.55,
+                                        ),
+                                        size: 20,
+                                      ),
+                                      onPressed: () => setState(
+                                        () => _obscurePassword =
+                                            !_obscurePassword,
+                                      ),
+                                    ),
+                                  ),
+                              validator: Validators.password,
+                            ),
+                            const SizedBox(height: 14),
+
+                            // ── Confirm Password ──────────────
+                            TextFormField(
+                              controller: _confirmCtrl,
+                              focusNode: _confirmFocus,
+                              enabled: !isLoading,
+                              obscureText: _obscureConfirm,
+                              textInputAction: TextInputAction.done,
+                              autofillHints: const [AutofillHints.newPassword],
+                              onFieldSubmitted: (_) {
+                                if (!isLoading) _submit();
+                              },
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: scheme.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              decoration:
+                                  _fieldDecoration(
+                                    label: 'Confirm Password',
+                                    hint: '••••••••',
+                                    prefixIcon: Icons.lock_outline,
+                                    fill: fieldFill,
+                                    border: fieldBorder,
+                                    focusBorder: fieldBorderFocus,
+                                    scheme: scheme,
+                                    isDark: isDark,
+                                    cardColor: cardColor,
+                                  ).copyWith(
+                                    suffixIcon: IconButton(
+                                      tooltip: _obscureConfirm
+                                          ? 'Show password'
+                                          : 'Hide password',
+                                      icon: Icon(
+                                        _obscureConfirm
+                                            ? Icons.visibility_outlined
+                                            : Icons.visibility_off_outlined,
+                                        color: scheme.onSurface.withValues(
+                                          alpha: 0.55,
+                                        ),
+                                        size: 20,
+                                      ),
+                                      onPressed: () => setState(
+                                        () =>
+                                            _obscureConfirm = !_obscureConfirm,
+                                      ),
+                                    ),
+                                  ),
+                              validator: (v) {
+                                if (v == null || v.isEmpty) {
+                                  return 'Please confirm your password';
+                                }
+                                if (v != _passwordCtrl.text) {
+                                  return 'Passwords do not match';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 20),
+
+                            // ── Register button ───────────────
+                            SizedBox(
+                              height: 50,
+                              child: ElevatedButton(
+                                onPressed: isLoading ? null : _submit,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: scheme.primary,
+                                  foregroundColor: scheme.onPrimary,
+                                  disabledBackgroundColor: scheme.primary
+                                      .withValues(alpha: 0.55),
+                                  disabledForegroundColor: scheme.onPrimary
+                                      .withValues(alpha: 0.9),
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  textStyle: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.3,
+                                  ),
+                                ),
+                                child: isLoading
+                                    ? Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          SizedBox(
+                                            width: 18,
+                                            height: 18,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2.5,
+                                              color: scheme.onPrimary,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            'Creating account...',
+                                            style: TextStyle(
+                                              color: scheme.onPrimary,
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : const Text('Register'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // ── Login link ─────────────────────────────
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Already have an account?',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: scheme.onSurface.withValues(alpha: 0.65),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: isLoading
+                              ? null
+                              : () => context.go(RouteNames.login),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: Text(
+                            'Sign In',
+                            style: TextStyle(
+                              color: scheme.primary,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  // Field decoration with floating label on the border.
+  // The label becomes a "notch" cut out of the top border, which
+  // saves the vertical space of a separate label row.
+  // ────────────────────────────────────────────────────────────
+  InputDecoration _fieldDecoration({
+    required String label,
+    required String hint,
+    required IconData prefixIcon,
+    required Color fill,
+    required Color border,
+    required Color focusBorder,
+    required ColorScheme scheme,
+    required bool isDark,
+    required Color cardColor,
+  }) {
+    OutlineInputBorder makeBorder(Color color, {double width = 1.2}) {
+      return OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: color, width: width),
+      );
+    }
+
+    // Label style — floats up onto the border when focused/filled
+    final labelStyle = TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      color: scheme.onSurface.withValues(alpha: 0.55),
+    );
+    final floatingLabelStyle = TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w700,
+      color: scheme.primary,
+      letterSpacing: 0.3,
+    );
+
+    return InputDecoration(
+      labelText: label,
+      labelStyle: labelStyle,
+      floatingLabelStyle: floatingLabelStyle,
+
+      // The little gap the label sits in when floated
+      floatingLabelBehavior: FloatingLabelBehavior.auto,
+
+      hintText: hint,
+      hintStyle: TextStyle(
+        color: scheme.onSurface.withValues(alpha: 0.35),
+        fontSize: 14,
+      ),
+
+      prefixIcon: Padding(
+        padding: const EdgeInsets.only(left: 4, right: 4),
+        child: Icon(
+          prefixIcon,
+          size: 19,
+          color: scheme.onSurface.withValues(alpha: 0.55),
+        ),
+      ),
+      prefixIconConstraints: const BoxConstraints(minWidth: 42, minHeight: 42),
+
+      filled: true,
+      fillColor: fill,
+      isDense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+
+      border: makeBorder(border),
+      enabledBorder: makeBorder(border),
+      focusedBorder: makeBorder(focusBorder, width: 1.8),
+      errorBorder: makeBorder(AppColors.danger),
+      focusedErrorBorder: makeBorder(AppColors.danger, width: 1.8),
+      errorStyle: const TextStyle(
+        color: AppColors.danger,
+        fontSize: 11,
+        fontWeight: FontWeight.w500,
+        height: 1.2,
+      ),
+    );
+  }
+}
