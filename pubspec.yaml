@@ -55,6 +55,7 @@ dependencies:
   image_picker: ^1.2.4
 
 
+
   # Placeholder for backend (add later, no code uses them yet)
   dio: ^5.7.0
   shared_preferences: ^2.3.3
@@ -63,7 +64,7 @@ dependencies:
   share_plus: ^13.3.1
   path_provider: ^2.1.6
   url_launcher: ^6.3.3
-  app_installer_plus: ^1.2.0
+  github_release_apk_updater: ^1.0.11
   http: ^1.6.0
   # flutter_secure_storage: ^9.2.2
 

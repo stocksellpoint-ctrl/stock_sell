@@ -1,16 +1,16 @@
-import 'package:app_installer_plus/app_installer_plus.dart';
+
 import 'package:flutter/material.dart';
+import 'package:github_release_apk_updater/github_release_apk_updater.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-
-
-import '../../../../core/services/update_service.dart';
+import '../../../../core/config/app_info.dart';
 
 /// Confirms with the user whether to update now.
-class UpdateAvailableDialog extends StatelessWidget {
-  final UpdateInfo update;
 
-  const UpdateAvailableDialog({super.key, required this.update});
+class UpdateAvailableDialog extends StatelessWidget {
+  final GithubAPKRelease release;
+
+  const UpdateAvailableDialog({super.key, required this.release});
 
   @override
   Widget build(BuildContext context) {
@@ -23,25 +23,10 @@ class UpdateAvailableDialog extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Version ${update.version} is available.',
+            'Version ${release.version} is available.',
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
-          if (update.releaseNotes.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 140),
-              child: SingleChildScrollView(
-                child: Text(
-                  update.releaseNotes,
-                  style: TextStyle(
-                    fontSize: 12.5,
-                    color: scheme.onSurface.withValues(alpha:0.65),
-                    height: 1.4,
-                  ),
-                ),
-              ),
-            ),
-          ],
+          
         ],
       ),
       actions: [
@@ -51,11 +36,12 @@ class UpdateAvailableDialog extends StatelessWidget {
         ),
         TextButton(
           onPressed: () async {
-            if (update.htmlUrl.isNotEmpty) {
-              final uri = Uri.parse(update.htmlUrl);
-              if (await canLaunchUrl(uri)) {
-                await launchUrl(uri, mode: LaunchMode.externalApplication);
-              }
+            // Construct the release page URL from AppInfo
+            final htmlUrl =
+                'https://github.com/${AppInfo.githubOwner}/${AppInfo.githubRepo}/releases/tag/v${release.version}';
+            final uri = Uri.parse(htmlUrl);
+            if (await canLaunchUrl(uri)) {
+              await launchUrl(uri, mode: LaunchMode.externalApplication);
             }
           },
           child: const Text('View release'),
@@ -70,10 +56,11 @@ class UpdateAvailableDialog extends StatelessWidget {
 }
 
 /// Downloads the APK with a progress bar, then triggers the installer.
+/// Uses the package's [ApkDownloaderService] and [GithubReleaseApkUpdater].
 class UpdateDownloadDialog extends StatefulWidget {
-  final UpdateInfo update;
+  final GithubAPKRelease release;
 
-  const UpdateDownloadDialog({super.key, required this.update});
+  const UpdateDownloadDialog({super.key, required this.release});
 
   @override
   State<UpdateDownloadDialog> createState() => _UpdateDownloadDialogState();
@@ -84,6 +71,9 @@ class _UpdateDownloadDialogState extends State<UpdateDownloadDialog> {
   String _status = 'Preparing…';
   bool _started = false;
   bool _failed = false;
+
+  final _downloader = ApkDownloaderService();
+  final _updater = GithubReleaseApkUpdater();
 
   @override
   void initState() {
@@ -96,17 +86,42 @@ class _UpdateDownloadDialogState extends State<UpdateDownloadDialog> {
     _started = true;
 
     try {
-      await AppInstallerPlus().downloadAndInstallApk(
-        downloadFileUrl: widget.update.apkUrl,
-        onProgress: (progress) {
+      setState(() => _status = 'Downloading...');
+
+      // 1. Download the APK using the package's downloader.
+      // It uses dio internally and correctly handles GitHub's redirects.
+      final filePath = await _downloader.downloadAPK(
+        widget.release.apkUrl,
+        null, // optional token for private repos
+        (received, total) {
           if (!mounted) return;
-          final p = progress.clamp(0.0, 1.0);
-          setState(() {
-            _progress = p;
-            _status = 'Downloading ${(p * 100).toStringAsFixed(0)}%';
-          });
+          if (total > 0) {
+            final p = (received / total).clamp(0.0, 1.0);
+            setState(() {
+              _progress = p;
+              _status = 'Downloading ${(p * 100).toStringAsFixed(0)}%';
+            });
+          } else {
+            setState(() {
+              _status =
+                  'Downloading ${(received / 1024 / 1024).toStringAsFixed(1)} MB';
+            });
+          }
         },
       );
+
+      if (filePath == null) {
+        throw Exception('Download failed: no file path returned');
+      }
+
+      // 2. Hand the local file to the installer.
+      setState(() {
+        _status = 'Installing...';
+        _progress = 1.0;
+      });
+
+      await _updater.installApk(filePath);
+
       if (!mounted) return;
       Navigator.of(context).pop();
     } catch (e) {
@@ -138,10 +153,9 @@ class _UpdateDownloadDialogState extends State<UpdateDownloadDialog> {
             'installation. Tap "Allow" to install the update.',
             style: TextStyle(
               fontSize: 11,
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withValues(alpha: 0.55),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.55),
               height: 1.4,
             ),
           ),
