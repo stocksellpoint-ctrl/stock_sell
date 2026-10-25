@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:stock_sell/core/config/app_info.dart';
 import 'package:stock_sell/core/constants/app_colors.dart';
 
-import '../../../../core/services//update_service.dart';
+import '../../../../core/services/update_service.dart';
 import 'update_dialog.dart';
 
 import 'package:stock_sell/features/auth/presentation/providers/auth_provider.dart';

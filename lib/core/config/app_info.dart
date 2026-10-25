@@ -3,7 +3,7 @@ class AppInfo {
   AppInfo._();
 
   static const appName = 'Stock & Sell';
-  static const version = '1.0.0';
+  static const version = '1.0.1';
   static const developerName = 'Khaled Ahasan';
   static const developerEmail = 'khaled88hasan@gmail.com';
 

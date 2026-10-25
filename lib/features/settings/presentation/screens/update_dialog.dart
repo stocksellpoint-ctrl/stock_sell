@@ -1,7 +1,7 @@
 import 'package:app_installer_plus/app_installer_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../../core/config/app_info.dart';
+
 
 
 import '../../../../core/services/update_service.dart';
@@ -35,7 +35,7 @@ class UpdateAvailableDialog extends StatelessWidget {
                   update.releaseNotes,
                   style: TextStyle(
                     fontSize: 12.5,
-                    color: scheme.onSurface.withOpacity(0.65),
+                    color: scheme.onSurface.withValues(alpha:0.65),
                     height: 1.4,
                   ),
                 ),

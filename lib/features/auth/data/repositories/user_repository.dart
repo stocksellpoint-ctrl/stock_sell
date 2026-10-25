@@ -54,11 +54,11 @@ class UserRepository {
       final res = await _client.dio.put(
         '${ApiEndpoints.users}/$id',
         data: {
-          if (name != null) 'name': name,
-          if (email != null) 'email': email,
+           'name': ?name,
+           'email': ?email,
           if (password != null && password.isNotEmpty) 'password': password,
-          if (role != null) 'role': role,
-          if (isActive != null) 'isActive': isActive,
+          'role': ?role,
+          'isActive': ?isActive,
         },
       );
       return UserModel.fromJson(res.data['data'] as Map<String, dynamic>);

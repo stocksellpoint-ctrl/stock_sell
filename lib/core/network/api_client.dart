@@ -1,9 +1,4 @@
-/// Placeholder — will use Dio when backend is ready.
-///
-/// When backend arrives:
-///   1. Uncomment dio in pubspec.yaml
-///   2. Implement this class with a Dio instance
-///   3. Set baseUrl + auth interceptor
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 

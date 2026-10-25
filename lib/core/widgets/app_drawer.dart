@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:stock_sell/core/config/app_info.dart';
 
 import '../constants/app_colors.dart';
-import '../constants/app_size.dart';
+
 import 'package:url_launcher/url_launcher.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 
@@ -136,7 +136,7 @@ class AppDrawer extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  '${AppInfo.developerEmail}',
+                                  AppInfo.developerEmail,
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w500,
@@ -303,7 +303,8 @@ class AppDrawer extends StatelessWidget {
       ),
     );
 
-    if (confirmed != true) return;
+    // ★ Guard #1: user may have dismissed the app while the dialog was open
+    if (confirmed != true || !navigator.mounted) return;
 
     // ── Non-dismissible loading dialog while logging out ──
     showDialog(
@@ -318,6 +319,9 @@ class AppDrawer extends StatelessWidget {
     try {
       await auth.logout();
     } catch (_) {}
+
+    // ★ Guard #2: the async gap from auth.logout() could have unmounted us
+    if (!navigator.mounted) return;
 
     // Dismiss the loading dialog.
     navigator.pop();

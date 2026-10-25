@@ -1,165 +1,4 @@
-// import 'package:flutter/material.dart';
-// import 'package:go_router/go_router.dart';
-// import 'package:provider/provider.dart';
 
-// import '../../../../core/constants/app_colors.dart';
-// import '../../../../core/routes/route_names.dart';
-// import '../../../../core/utils/validators.dart';
-// import '../providers/auth_provider.dart';
-
-// class LoginScreen extends StatefulWidget {
-//   const LoginScreen({super.key});
-
-//   @override
-//   State<LoginScreen> createState() => _LoginScreenState();
-// }
-
-// class _LoginScreenState extends State<LoginScreen> {
-//   final _formKey = GlobalKey<FormState>();
-//   final _emailCtrl = TextEditingController();
-//   final _passwordCtrl = TextEditingController();
-//   bool _obscure = true;
-
-//   @override
-//   void dispose() {
-//     _emailCtrl.dispose();
-//     _passwordCtrl.dispose();
-//     super.dispose();
-//   }
-
-//   Future<void> _submit() async {
-//     if (!_formKey.currentState!.validate()) return;
-
-//     final provider = context.read<AuthProvider>();
-//     final ok = await provider.login(_emailCtrl.text.trim(), _passwordCtrl.text);
-
-//     if (!mounted) return;
-
-//     if (ok) {
-//       context.go(RouteNames.home);
-//       return;
-//     }
-
-//     final message = provider.error ?? 'Login failed';
-
-//     ScaffoldMessenger.of(context)
-//       ..hideCurrentSnackBar()
-//       ..showSnackBar(
-//         SnackBar(
-//           content: Row(
-//             children: [
-//               const Icon(Icons.error_outline, color: Colors.white),
-//               const SizedBox(width: 12),
-//               Expanded(child: Text(message)),
-//             ],
-//           ),
-//           backgroundColor: AppColors.danger,
-//           behavior: SnackBarBehavior.floating,
-//           duration: const Duration(seconds: 4),
-//           action: SnackBarAction(
-//             label: 'OK',
-//             textColor: Colors.white,
-//             onPressed: () =>
-//                 ScaffoldMessenger.of(context).hideCurrentSnackBar(),
-//           ),
-//         ),
-//       );
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final isLoading = context.watch<AuthProvider>().isLoading;
-
-//     return Scaffold(
-//       body: SafeArea(
-//         child: SingleChildScrollView(
-//           padding: const EdgeInsets.all(24),
-//           child: Form(
-//             key: _formKey,
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.stretch,
-//               children: [
-//                 const SizedBox(height: 40),
-//                 const Icon(
-//                   Icons.inventory_2_outlined,
-//                   size: 80,
-//                   color: AppColors.primary,
-//                 ),
-//                 const SizedBox(height: 16),
-//                 const Text(
-//                   'Welcome Back',
-//                   textAlign: TextAlign.center,
-//                   style: TextStyle(
-//                     fontSize: 28,
-//                     fontWeight: FontWeight.bold,
-//                     color: AppColors.textPrimary,
-//                   ),
-//                 ),
-//                 const SizedBox(height: 8),
-//                 const Text(
-//                   'Sign in to manage your inventory',
-//                   textAlign: TextAlign.center,
-//                   style: TextStyle(color: AppColors.textSecondary),
-//                 ),
-//                 const SizedBox(height: 40),
-
-//                 TextFormField(
-//                   controller: _emailCtrl,
-//                   keyboardType: TextInputType.emailAddress,
-//                   decoration: const InputDecoration(
-//                     labelText: 'Email',
-//                     prefixIcon: Icon(Icons.email_outlined),
-//                   ),
-//                   validator: Validators.email,
-//                 ),
-//                 const SizedBox(height: 16),
-
-//                 TextFormField(
-//                   controller: _passwordCtrl,
-//                   obscureText: _obscure,
-//                   decoration: InputDecoration(
-//                     labelText: 'Password',
-//                     prefixIcon: const Icon(Icons.lock_outline),
-//                     suffixIcon: IconButton(
-//                       icon: Icon(
-//                         _obscure
-//                             ? Icons.visibility_outlined
-//                             : Icons.visibility_off_outlined,
-//                       ),
-//                       onPressed: () => setState(() => _obscure = !_obscure),
-//                     ),
-//                   ),
-//                   validator: Validators.password,
-//                 ),
-//                 const SizedBox(height: 24),
-
-//                 ElevatedButton(
-//                   onPressed: isLoading ? null : _submit,
-//                   child: isLoading
-//                       ? const SizedBox(
-//                           width: 22,
-//                           height: 22,
-//                           child: CircularProgressIndicator(
-//                             color: Colors.white,
-//                             strokeWidth: 2.5,
-//                           ),
-//                         )
-//                       : const Text('Login'),
-//                 ),
-//                 const SizedBox(height: 12),
-
-//                 TextButton(
-//                   onPressed: () => context.go(RouteNames.register),
-//                   child: const Text("Don't have an account? Register"),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -284,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: 88,
                       height: 88,
                       decoration: BoxDecoration(
-                        color: scheme.primary.withOpacity(isDark ? 0.20 : 0.12),
+                        color: scheme.primary.withValues(alpha:isDark ? 0.20 : 0.12),
                         borderRadius: BorderRadius.circular(18),
                       ),
                       child: Icon(
@@ -326,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(
+                            color: Colors.black.withValues(alpha:
                               isDark ? 0.30 : 0.06,
                             ),
                             blurRadius: 24,
@@ -469,35 +308,35 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 16),
 
                     // ── Register link ──────────────────
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Don't have an account?",
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: scheme.onSurface.withValues(alpha: 0.65),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: isLoading
-                              ? null
-                              : () => context.go(RouteNames.register),
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                          child: Text(
-                            'Register',
-                            style: TextStyle(
-                              color: scheme.primary,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.center,
+                    //   children: [
+                    //     Text(
+                    //       "Don't have an account?",
+                    //       style: theme.textTheme.bodySmall?.copyWith(
+                    //         color: scheme.onSurface.withValues(alpha: 0.65),
+                    //       ),
+                    //     ),
+                    //     TextButton(
+                    //       onPressed: isLoading
+                    //           ? null
+                    //           : () => context.go(RouteNames.register),
+                    //       style: TextButton.styleFrom(
+                    //         padding: const EdgeInsets.symmetric(horizontal: 8),
+                    //         minimumSize: Size.zero,
+                    //         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    //       ),
+                    //       child: Text(
+                    //         'Register',
+                    //         style: TextStyle(
+                    //           color: scheme.primary,
+                    //           fontWeight: FontWeight.w700,
+                    //           fontSize: 13,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
                   ],
                 ),
               ),

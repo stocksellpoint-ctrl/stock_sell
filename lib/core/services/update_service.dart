@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import '../config/app_info.dart';
+import 'package:stock_sell/core/config/app_info.dart';
 
 class UpdateInfo {
   final String version;      // e.g. "1.0.1"
